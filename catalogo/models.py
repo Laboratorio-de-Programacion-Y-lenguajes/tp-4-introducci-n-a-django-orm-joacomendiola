@@ -52,8 +52,8 @@ class Libro(models.Model):
     def prestamos_activos(self) -> int:
         """
         Retorna la cantidad de préstamos activos (fecha_devolucion IS NULL).
-
         Un préstamo es "activo" cuando no se ha registrado devolución.
+        Es decir, cuando fecha_devolucion es NULL.
         """
         return self.prestamo_set.filter(fecha_devolucion__isnull=True).count()
 
@@ -61,13 +61,14 @@ class Libro(models.Model):
         """
         Retorna cuántas copias están disponibles:
         cantidad_total - prestamos_activos()
+        Nunca retorna un numero negativo.
         """
-        disponibles = self.cantidad_total - self.prestamos_activos()
-        return max(disponibles, 0) # Evitamos números negativos en caso de inconsistencias
+        return max(self.cantidad_total - self.prestamos_activos(), 0) 
         
 
     def tiene_disponibles(self) -> bool:
-        """Retorna True si hay al menos una copia disponible."""
+        """Retorna True si hay al menos una copia disponible.
+        La función debe retornar un booleano, no un número."""
         
         return self.disponibles() > 0
 
